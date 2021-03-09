@@ -1,0 +1,65 @@
+﻿@model SwaggerAPI.ViewModel.Request.NewDoctorRequest
+
+@{
+    ViewData["Title"] = "Đăng Ký Thông Tin Bác Sĩ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Đăng Ký Thông Tin Bác Sĩ</h1>
+
+<form asp-action="Create" asp-controller="Doctor" class="user" style="margin-top: 40px">
+
+    <div class="row" style="margin: 0 52px 52px 52px">
+        <div class="col-6" style="padding: 0 26px 0 0" id="tab-1">
+            <div class="form-group">
+
+                <input asp-for="@Model.Name" type="text" class="form-control form-control-user"
+                       id="txt-name" aria-describedby="emailHelp"
+                       placeholder="Họ tên...">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Phone" type="text" class="form-control form-control-user"
+                       id="txt-phone" aria-describedby="emailHelp"
+                       placeholder="Điện thoại..." maxlength="10">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Email" type="text" class="form-control form-control-user"
+                       id="txt-email" aria-describedby="emailHelp"
+                       placeholder="Email...">
+            </div>
+        </div>
+
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <message type="@ViewBag.MessageType" content="@ViewBag.Message" statusCode="@ViewBag.Code">
+            @ViewBag.Message
+
+        </message>
+    }
+
+    <div class="row">
+        <div class="col-6" id="div-submit" style="display: flex; justify-content: center;">
+            <button type="submit" class="btn btn-primary btn-user btn-block" style="font-size:20px;width:32%" id="btnConfirm">
+                Xác Nhận
+            </button>
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#btnConfirm").click(function (e) {
+            if ($("#txt-name").val().length == 0 ||
+                $("#txt-phone").val().length == 0 ||
+                $("#txt-email").val().length == 0) {
+                e.preventDefault();
+                iziToast.error({
+                    title: "",
+                    message: "Vui lòng nhập đầy đủ các trường",
+                    position: "bottomRight",
+                });
+            }
+        });
+    });
+</script>

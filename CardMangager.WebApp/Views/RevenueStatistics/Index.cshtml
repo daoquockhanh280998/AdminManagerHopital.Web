@@ -1,0 +1,123 @@
+﻿@model SwaggerAPI.ViewModel.CardManager.CardCommon
+
+
+@{
+    ViewData["Title"] = "Thống Kê Doanh Thu";
+    var i = 1;
+    var doanhthu = 0;
+    var tra = 0;
+}
+
+<h1>Thống Kê Doanh Thu</h1>
+
+
+<div style="margin: 18px 0">
+    <form asp-action="Index" asp-controller="RevenueStatistics" method="post" style="display:inline">
+        <select asp-for="@Model.Action" class="custom-select mr-sm-2" id="inlineFormCustomSelect" style="width:20%;display:inline">
+            <option selected value="">Chọn Thao Tác</option>
+            <option value="CreateNewCard">Tạo Thẻ</option>
+            <option value="TopUp">Nạp Tiền</option>
+            <option value="ReturnCard">Trả Thẻ</option>
+            <option value="All">Toàn Bộ</option>
+        </select>
+
+        <input class="form-control" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" asp-for="@Model.Date" id="example-date-input" style="width: 20%;display: inline">
+
+        <button type="submit" class="btn btn-primary" style="float:right;margin-left:4px">Lọc</button>
+
+    </form>
+    <a class="btn btn-success" id="exportExcel" style="float:right;color:white">Xuất Excel</a>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                STT
+            </th>
+            <th>
+                Mã Thẻ
+            </th>
+            <th>
+                Thao Tác
+            </th>
+            <th>
+                Thời Gian
+            </th>
+            <th>
+                Số Tiền
+            </th>
+
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.RevenueStatistics)
+        {
+            if (item.action == "ReturnCard")
+            {
+                tra += item.amount;
+            }
+            else
+            {
+                doanhthu += item.amount;
+            }
+            <tr>
+                <td>
+                    @(i++)
+                </td>
+                <td>
+                    @item.cardNumber
+                </td>
+                <td>
+                    @(item.action == "TopUp" ? "Nạp tiền" : item.action == "CreateNewCard" ? "Tạo mới" : "Trả thẻ")
+                </td>
+                <td>
+                    @item.date
+                </td>
+                <td>
+                    @string.Format("{0:n0}", item.amount)
+                </td>
+            </tr>
+        }
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="font-weight:bold; text-align:right">Tổng doanh thu:</td>
+            <td style="font-weight:bold">@string.Format("{0:n0}", doanhthu)</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="font-weight:bold; text-align:right">Tổng tiền trả:</td>
+            <td style="font-weight:bold">@string.Format("{0:n0}", tra)</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td style="font-weight:bold; text-align:right">Tổng còn lại:</td>
+            <td style="font-weight:bold">@(string.Format("{0:n0}", (doanhthu - tra)) + " (VND)")</td>
+        </tr>
+    </tbody>
+</table>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $("#exportExcel").on("click", function () {
+            $.ajax({
+                url: "/RevenueStatistics/ExportExcel",
+                method: "post",
+                dataType: "json",
+                data: {
+                    Action: $("#inlineFormCustomSelect").val(),
+                    date: $("#example-date-input").val()
+                },
+                success: function (data) {
+                    window.location.replace(JSON.stringify(data).slice(2).slice(0, -1));
+                }
+            });
+        });
+    });
+</script>

@@ -1,0 +1,39 @@
+﻿@model SwaggerAPI.ViewModel.Request.NewRoomRequest
+@{
+    ViewData["Title"] = "Tạo Mới Phòng Khám";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Tạo Mới Phòng Khám</h1>
+
+<form asp-action="Create" asp-controller="Room" class="user" style="margin-top: 40px">
+
+    <div class="row" style="margin: 0 52px 52px 52px">
+        <div class="col-6" style="padding: 0 26px 0 0" id="tab-1">
+            <div class="form-group">
+
+                <input asp-for="@Model.roomName" type="text" class="form-control form-control-user"
+                       id="txt-name" aria-describedby="emailHelp"
+                       placeholder="Tên phòng..." value="Phòng khám ">
+            </div>
+
+        </div>
+
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <message type="@ViewBag.MessageType" content="@ViewBag.Message" statusCode="@ViewBag.Code">
+            @ViewBag.Message
+
+        </message>
+    }
+
+    <div class="row">
+        <div class="col-6" id="div-submit" style="display: flex; justify-content: center;">
+            <button type="submit" class="btn btn-primary btn-user btn-block" style="font-size:20px;width:32%">
+                Xác Nhận
+            </button>
+        </div>
+    </div>
+</form>

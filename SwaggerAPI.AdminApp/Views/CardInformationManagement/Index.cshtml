@@ -1,0 +1,67 @@
+﻿@model IEnumerable<CardInformationViewModel>
+@{
+    ViewData["Title"] = "Quản Lý Thẻ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Quản Lý Thẻ</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4" style="margin-bottom:12px">
+                <a class="btn btn-primary" asp-action="Index" asp-controller="CardService">Dịch Vụ Thẻ</a>
+                <a class="btn btn-success" asp-action="Index" asp-controller="RevenueStatistics">Thống Kê Doanh Thu</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Mã Thẻ</th>
+                            <th>Số Thẻ</th>
+                            <th>Tiền Trong Thẻ</th>
+                            <th>Ngày Tạo</th>
+                            <th>Ngày Hết Hạn</th>
+                            <th>Mã Bệnh Nhân</th>
+                            <th>Trạng Thái</th>
+                            <th>Người Tạo</th>
+
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                                foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <td class="sorting_1">@item.id</td>
+                                        <td>@item.cardNumber</td>
+                                        <td>@(item.money != 0 ? (string.Format("{0:n0}", item.money) + " VND") : "0")</td>
+                                        <td>@item.createdDate.ToString("dd-MM-yyyy")</td>
+                                        <td>@item.expiredDate.ToString("dd-MM-yyyy")</td>
+                                        <td>@(item.patientId == string.Empty ? "Chưa Được Cấp" : item.patientId)</td>
+                                        <td>@(item.status == 1 ? "OK" : item.status == 2 ? "CHANGED" : item.status == 3 ? "RETURNED" : "BLOCKED")</td>
+                                        <td>@item.createdBy</td>
+                                    </tr>
+                                }
+                            }
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('#dataTable').DataTable();
+
+        $("[name='dataTable_length']").css("width", "60px");
+    });
+</script>
+

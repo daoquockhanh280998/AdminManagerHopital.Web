@@ -1,0 +1,70 @@
+﻿@{
+    ViewData["Title"] = "Khám Bệnh";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listRoom = ViewBag.listRoom as IEnumerable<RoomRequestModel>;
+    var listShift = ViewBag.listShift as IEnumerable<PatientEaminationListRequest>;
+}
+<div class="row" style="margin-top: 62px;">
+    <div class="col-4"></div>
+    <div class="col-4">
+        <div style="text-align:center; margin-bottom:92px">
+            <img src="~/img/logo.png" width="42%" />
+            <h2 class="display-4" style="padding-top: 42px; color: #0095DA">BỆNH VIỆN ABC</h2>
+        </div>
+        <div class="form-group">
+            <h6 class="control-label">CHỌN PHÒNG</h6>
+            <select class="custom-select" id="slt-room">
+                <option selected disabled>Chọn phòng</option>
+                @foreach (var room in listRoom)
+                {
+                    <option value="@room.id" class="form-control">@room.name</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <h6 class="control-label">CHỌN CA</h6>
+            <select class="custom-select" id="slt-shift" disabled>
+            </select>
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-primary btn-lg btn-block" id="btn-start" disabled>VÀO CA</button>
+        </div>
+    </div>
+    <div class="col-4"></div>
+</div>
+<script>
+    $(document).ready(function () {
+        $("#btn-start").click(function () {
+            window.location.replace("/PatientEaminationList/Examination/" + $("#slt-shift").val());
+        });
+
+        $("#slt-room").change(function () {
+            $("#slt-shift").removeAttr("disabled");
+            $("#btn-start").removeAttr("disabled");
+            var content = "";
+
+            $.ajax({
+                url: "/PatientEaminationList/GetShiftsByRoom",
+                method: "GET",
+                dataType: "json",
+                async: false,
+                data: {
+                    roomID: $("#slt-room").val()
+                },
+                success: function (data) {
+                    if (!$.trim(data)) {
+                        $("#slt-shift").attr("disabled", true);
+                        $("#btn-start").attr("disabled", true);
+                    }
+                    else {
+                        $(data).each(function (index, s) {
+                            content += "<option value='" + s.id + "' class='form-control'>" + s.timeId + "</option>";
+                        });
+                    }
+                }
+            });
+
+            $("#slt-shift").html(content);
+        });
+    });
+</script>

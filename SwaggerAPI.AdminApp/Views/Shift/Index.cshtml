@@ -1,0 +1,229 @@
+﻿@{
+    ViewData["Title"] = "Quản Lý Ca Khám";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    var listDoctor = ViewBag.ListDoctor as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.DoctorRequestModel>;
+    var listRoom = ViewBag.ListRoom as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.RoomRequestModel>;
+    var listTime = ViewBag.ListTime as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.TimeRequestModel>;
+}
+
+<h1>Quản Lý Ca Khám</h1>
+
+<div id='calendar'></div>
+
+<button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" id="open-modal" style="display: none">Open modal for</button>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Tạo ca khám</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+                <div class="form-group">
+                    <label class="control-label">Bác sĩ</label>
+                    <select id="DoctorId" class="custom-select">
+                        @{
+                            foreach (var doctor in listDoctor)
+                            {
+                                <option value="@doctor.id" class="form-control">@doctor.name</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Phòng</label>
+                    <select id="RoomId" class="custom-select">
+                        @{
+                            foreach (var room in listRoom)
+                            {
+                                <option value="@room.id" class="form-control">@room.name</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="control-label">Khung giờ</label>
+                    <select id="TimeId" class="custom-select">
+                        @{
+                            foreach (var time in listTime)
+                            {
+                                <option value="@time.id" class="form-control">@time.shiftTime</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+                <input type="text" id="input-date" hidden />
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                <button type="button" class="btn btn-primary" id="btnCreateModal">Tạo mới</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .fc-daygrid-event-harness {
+        cursor: pointer;
+    }
+</style>
+<script>
+    var isToastDisplayed = false;
+
+    document.addEventListener('DOMContentLoaded', function () {
+        renderFullCalendar();
+    });
+
+    $(document).ready(function () {
+        $("#btnCreateModal").click(function () {
+            var doctorId = $("#DoctorId").val();
+            var roomId = $("#RoomId").val();
+            var timeId = $("#TimeId").val();
+
+            $.ajax({
+                url: "/Shift/New",
+                method: "post",
+                dataType: "json",
+                data: {
+                    RoomId: roomId,
+                    DoctorId: doctorId,
+                    Date: $("#input-date").val(),
+                    TimeId: timeId
+                },
+                success: function (data) {
+                    if (JSON.stringify(data) == "true") {
+                        $('#exampleModal').modal('toggle');
+                        iziToast.success({
+                            title: "",
+                            message: "Thêm mới ca khám thành công",
+                            position: "bottomRight",
+                        });
+                        renderFullCalendar();
+                    }
+                }
+            });
+        });
+    });
+
+    function renderFullCalendar() {
+        var calendarEl = document.getElementById('calendar');
+
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            initialDate: '@DateTime.Now.ToString("yyyy-MM-dd")',
+            navLinks: true, // can click day/week names to navigate views
+            selectable: true,
+            selectMirror: true,
+            contentHeight: 650,
+            locale: 'vi',
+            select: function(arg) {
+                //var title = prompt('Event Title:');
+
+                var title = null;
+
+                $("#open-modal").trigger("click");
+
+                var day = arg.start.getDate();
+                var month = arg.start.getMonth() + 1;
+                var year = arg.start.getFullYear();
+                var hour = arg.start.getHours();
+                var minute = arg.start.getMinutes();
+                var second = arg.start.getSeconds();
+
+                var time = month + "/" + day + "/" + year + " " + hour + ':' + minute + ':' + second;
+
+                $("#input-date").val(time);
+
+                //console.log($("#input-date").val());
+
+                if (title) {
+                    calendar.addEvent({
+                        title: title,
+                        start: arg.start,
+                        end: arg.end,
+                        allDay: arg.allDay
+                    })
+                }
+
+
+                calendar.unselect()
+            },
+            eventClick: function (arg) {
+                if (!isToastDisplayed) {
+                    isToastDisplayed = true;
+
+                    iziToast.show({
+                        theme: 'dark',
+                        overlay: true,
+                        icon: 'icon-person',
+                        title: '',
+                        message: 'Bạn có chắc muốn xóa ca khám này?',
+                        position: 'center',
+                        progressBarColor: 'rgb(0, 255, 184)',
+                        buttons: [
+                            ['<button>Có</button>', function (instance, toast) {
+                                $.ajax({
+                                    url: "/Shift/Delete",
+                                    method: "GET",
+                                    dataType: "json",
+                                    data: {
+                                        shiftID: arg.event.id
+                                    },
+                                    success: function (data) {
+                                        if (JSON.stringify(data) == "true") {
+                                            arg.event.remove();
+
+                                            iziToast.success({
+                                                title: "",
+                                                message: "Xóa ca khám thành công",
+                                                position: "bottomRight",
+                                            });
+
+                                            instance.hide({
+                                                transitionOut: 'fadeOutUp'
+                                            }, toast, 'buttonName');
+                                        }
+                                    }
+                                });
+                            }],
+                            ['<button>Không</button>', function (instance, toast) {
+                                instance.hide({
+                                    transitionOut: 'fadeOutUp'
+                                }, toast, 'buttonName');
+                            }]
+                        ],
+                        onClosing: function (instance, toast, closedBy) {
+                            isToastDisplayed = false;
+                        }
+                    });
+                }
+            },
+            editable: false,
+            dayMaxEvents: true,
+            events: {
+                url: "/Shift/GetAllShift",
+                success: function (response) {
+                    //console.log(JSON.stringify(response))
+                    return response.data;
+                }
+            }
+        });
+
+        calendar.render();
+    }
+</script>

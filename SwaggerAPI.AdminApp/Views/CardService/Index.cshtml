@@ -1,0 +1,164 @@
+﻿@model CheckDervice
+@{
+    ViewData["Title"] = "Quản Lý Thẻ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Quản Lý Thẻ</h1>
+
+
+
+<form asp-action="Index" asp-controller="CardService" class="user">
+    <div class="row" style="margin: 52px 52px 22px 52px">
+        <div class="col-6">
+            <div class="form-group">
+                <select asp-for="@Model.NameService" class="form-control" id="id_accomodation" style="border-radius: 10rem;height: 3.1rem;padding: 0 14px">
+                    <option disabled selected> Vui Lòng Chọn Dịch Vụ </option>
+                    <option value="search">Tra Cứu Thông Tin</option>
+                    <option value="create">Đăng Ký Thẻ</option>
+                    <option value="top-up">Nạp Tiền</option>
+                    <option value="return">Trả Thẻ</option>
+                    <option value="change">Đổi Thẻ</option>
+                    <option value="block">Hủy Thẻ</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="row" style="margin: 0 52px 52px 52px">
+
+        <div class="col-6" id="tab-2">
+            <div class='form-group' id="frm-Error">
+                <div class='form-group'>
+                    <div class='col-md-9'>
+                        <h4 style="color:red;" id="txt-Error"></h4>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group" id="frm-patientId">
+                <input asp-for="@Model.patientId" type="text" class="form-control form-control-user"
+                       id="exampleInputEmail" aria-describedby="emailHelp"
+                       placeholder="Nhập mã bệnh nhân...">
+            </div>
+            <div class="form-group" id="frm-cardNumber">
+                <input asp-for="@Model.cardNumber" class='form-control form-control-user' id='cardNumber' placeholder="Nhập Mã Thẻ" type='text'>
+
+            </div>
+            <div class="form-group" id="frm-money">
+                <input asp-for="@Model.Money" class='form-control form-control-user' id='Money' placeholder="Nhập Số Tiền " type="number">
+                <br />
+                <button class="btn btn-success btn-add-money" value="50000" type="button">+ 50,000</button>
+                <button class="btn btn-success btn-add-money" value="100000" type="button">+ 100,000</button>
+                <button class="btn btn-success btn-add-money" value="200000" type="button">+ 200,000</button>
+                <button class="btn btn-success btn-add-money" value="500000" type="button">+ 500,000</button>
+                <button class="btn btn-success btn-add-money" value="1000000" type="button">+ 1,000,000</button>
+                <button class="btn btn-success btn-add-money" value="10000000" type="button">+ 10,000,000</button>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <message type="@ViewBag.MessageType" content="@ViewBag.Message" statusCode="@ViewBag.Code">
+            @ViewBag.Message
+
+        </message>
+    }
+
+    <div class="row">
+        <div class="col-6" id="div-submit" style="display: flex; justify-content: center;">
+            <button type="submit" class="btn btn-primary btn-user btn-block btn-lg" style="font-size:20px;width:32%">
+                Xác Nhận
+            </button>
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        //$('.multiselect').multiselect();
+        //$('.datepicker').datepicker();
+
+        hideControl();
+
+        $("#id_accomodation").change(function () {
+            hideControl();
+            $("input").val("");
+            $(".btn-lg").show();
+            $(".close[data-dismiss='alert']").trigger("click");
+
+            if ($(this).val() == "create") {
+                $("#frm-patientId").show();
+                $("#Money").val(0);
+                $("#frm-money").show();
+            }
+            else {
+                $("#frm-cardNumber").show();
+
+                if ($(this).val() == "top-up") {
+                    $("#Money").val(0);
+                    $("#frm-money").show();
+                }
+
+                if ($(this).val() == "search") {
+                    $("#frm-cardNumber").show();
+                }
+            }
+        });
+
+        $("#btn-create-card").on("click", function () {
+            $('#id_accomodation').val('create').trigger('change');
+        });
+
+        $(".btn-add-money").click(function () {
+            if ($("#Money").val() == 0) {
+                $("#Money").val(parseInt($("#Money").val()) + parseInt($(this).attr("value")));
+            }
+            else {
+                $("#Money").val(parseInt($("#Money").val()) + parseInt($(this).attr("value")));
+            }
+        });
+
+        $(document).on("submit", "form", function (e) {
+            var select = $("#id_accomodation").val();
+
+            if (select == "create") {
+                if ($("#patientId").val() == "" || $("#Money").val() == "") {
+                    e.preventDefault();
+                    $("#frm-Error").show();
+                    $("#txt-Error").text("Vui lòng nhập đầy đủ thông tin");
+                }
+            }
+            else if (select == "top-up") {
+                if ($("#cardNumber").val() == "" || $("#Money").val() == "") {
+                    e.preventDefault();
+                    $("#frm-Error").show();
+                    $("#txt-Error").text("Vui lòng nhập đầy đủ thông tin");
+                }
+            }
+            else {
+                if ($("#cardNumber").val() == "") {
+                    e.preventDefault();
+                    $("#frm-Error").show();
+                    $("#txt-Error").text("Vui lòng nhập mã thẻ");
+                }
+            }
+
+            if (select == "create" || select == "top-up") {
+                if ($("#Money").val() < 0) {
+                    e.preventDefault();
+                    $("#frm-Error").show();
+                    $("#txt-Error").text("Số tiền không hợp lệ");
+                }
+            }
+        });
+
+        function hideControl() {
+            $("#frm-patientId").hide();
+            $("#frm-cardNumber").hide();
+            $("#frm-money").hide();
+            $(".btn-lg").hide();
+            $("#frm-Error").hide();
+        }
+    });
+</script>

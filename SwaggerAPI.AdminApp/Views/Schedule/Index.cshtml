@@ -1,0 +1,157 @@
+﻿@model ScheduleViewModel
+@{
+    ViewData["Title"] = "Đăng Ký Lịch Khám";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h1>Đăng Ký Lịch Khám</h1>
+
+
+
+<form asp-action="Index" asp-controller="Schedule" class="user">
+    <div class="row" style="margin: 52px 0 22px 52px">
+        <div class="col-12">
+            <div class="form-check" style="font-size: 18px; font-weight: 500">
+                <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                <label class="form-check-label" for="defaultCheck1">
+                    Đã có trong hệ thống
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="row" style="margin: 0 52px 52px 52px">
+        <div class="col-6" style="padding: 0 26px 0 0" id="tab-1">
+            <div class="form-group">
+
+                <input asp-for="@Model.name" type="text" class="form-control form-control-user"
+                       id="txt-name" aria-describedby="emailHelp"
+                       placeholder="Họ tên...">
+            </div>
+            <div class="form-group">
+
+                
+                <input class="form-control form-control-user" type="date" value="@DateTime.Now.ToString("yyyy-MM-dd")" asp-for="@Model.birthday" id="example-date-input">
+                @*<input asp-for="@Model.birthday" type="text" class="form-control form-control-user"
+                       id="txt-birthday" aria-describedby="emailHelp"
+                       placeholder="Ngày sinh...">*@
+            </div>
+            <div class="form-group">
+                <select asp-for="@Model.gender" class="form-control" id="txt-gender" style="font-size: .8rem;border-radius: 10rem;height: 3.2rem;padding: 0 14px;">
+                    <option value="true">Nam</option>
+                    <option value="false">Nữ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.phone" type="text" class="form-control form-control-user"
+                       id="txt-phone" aria-describedby="emailHelp"
+                       placeholder="Điện thoại...">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.address" type="text" class="form-control form-control-user"
+                       id="txt-address" aria-describedby="emailHelp"
+                       placeholder="Địa chỉ...">
+            </div>
+        </div>
+        <div class="col-6" style="padding: 0 0 0 26px" id="tab-2">
+            <div class="form-group" id="patient-id">
+                <input asp-for="@Model.patientId" type="text" class="form-control form-control-user"
+                       id="txt-patientId" aria-describedby="emailHelp"
+                       placeholder="Nhập mã bệnh nhân...">
+            </div>
+            <div class="form-group">
+                <select asp-for="@Model.shiftId" class="form-control" id="txt-shiftTime" style="font-size: .8rem;border-radius: 10rem;height: 3.2rem;padding: 0 14px;">
+                    <option disabled selected>Chọn ca khám</option>
+                    @foreach (var item in Model.ShiftTimeResponses)
+                    {
+                        <option value="@item.Id">@item.Date.ToString("dd-MM-yyyy") (@item.TimeId)</option>
+                    }
+
+
+                </select>
+            </div>
+            <div class="form-group">
+                <select asp-for="@Model.bhyt" class="form-control" id="txt-bhyt" style="font-size: .8rem;border-radius: 10rem;height: 3.2rem;padding: 0 14px;">
+                    <option disabled selected>Chọn loại hình</option>
+                    <option value="true">Bảo hiểm y tế</option>
+                    <option value="false">Dịch vụ</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <message type="@ViewBag.MessageType" content="@ViewBag.Message" statusCode="@ViewBag.Code">
+            @ViewBag.Message
+
+        </message>
+    }
+
+    <div class="row">
+        <div class="col-12" id="div-submit" style="display: flex; justify-content: center;">
+            <button type="submit" class="btn btn-primary btn-user btn-block" style="font-size:20px;width:32%">
+                Xác Nhận
+            </button>
+        </div>
+    </div>
+</form>
+<script>
+    $(document).ready(function () {
+        $("#defaultCheck1").change(function () {
+            if (this.checked) {
+                $("#tab-1").hide();
+                $("#patient-id").show();
+                $("#div-submit").removeClass("col-12").addClass("col-6");
+
+            }
+            else {
+                $("#tab-1").show();
+                $("#patient-id").hide();
+                $("#div-submit").removeClass("col-6").addClass("col-12");
+            }
+        });
+
+        $("#defaultCheck1").trigger("click");
+        $("#defaultCheck1").trigger("click");
+
+        $(".btn-block").on("click", function (e) {
+            debugger
+            var message = [];
+
+            if (!$("#defaultCheck1").prop('checked')) {
+                if ($("#txt-name").val().length == 0) {
+                    message.push("tên");
+                    e.preventDefault();
+                }
+                if ($("#txt-phone").val().length == 0) {
+                    message.push("SĐT");
+                    e.preventDefault(); 
+                }
+                if ($("#txt-address").val().length == 0) {
+                    message.push("địa chỉ");
+                    e.preventDefault();
+                }
+            }
+            else {
+                if ($("#txt-patientId").val().length == 0) {
+                    message.push("mã bệnh nhân");
+                    e.preventDefault();            
+                }
+            }
+
+            if ($("#txt-shiftTime").val() == null) {
+                message.push("ca khám");
+                e.preventDefault();
+            }
+
+            if (message != "") {
+                iziToast.error({
+                    title: "",
+                    message: "Vui lòng chọn " + message.join(", "),
+                    position: "bottomRight",
+                });
+            }
+        });
+    });
+</script>

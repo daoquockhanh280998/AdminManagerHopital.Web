@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="3.1.5" />
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\2.SwaggerAPI.Service\SwaggerAPI.Core.IService.csproj" />
+    <ProjectReference Include="..\3.SwaggerAPI.Repository\SwaggerAPI.Repository.csproj" />
+    <ProjectReference Include="..\4.SwaggerAPI.Data\SwaggerAPI.Data.csproj" />
+    <ProjectReference Include="..\SwaggerAPI.App.Domain\SwaggerAPI.App.Domain.csproj" />
+    <ProjectReference Include="..\SwaggerAPI.ViewModel\SwaggerAPI.ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>

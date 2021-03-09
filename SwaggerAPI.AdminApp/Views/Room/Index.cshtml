@@ -1,0 +1,123 @@
+﻿@model IEnumerable<RoomRequestModel>
+@{
+    ViewData["Title"] = "Quản Lý Phòng";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Quản Lý Phòng</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4" style="margin-bottom:12px">
+                <div class="col-2" style="padding-left:0">
+                    <a class="btn btn-primary" asp-action="Create" asp-controller="Room">Tạo Mới</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Mã Phòng</th>
+                            <th>Tên Phòng</th>
+                            <th data-orderable="false">Thao Tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.id</td>
+                                    <td>@item.name</td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-warning btn-change-room" data-toggle="modal" data-target="#exampleModal" id="open-modal"><i class="far fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Chỉnh sửa phòng</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">ID</label>
+                        <input type="text" class="form-control" disabled id="room-id" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Tên Phòng</label>
+                        <input type="text" class="form-control" id="room-name" />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="btnUpdateModal">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        var name;
+
+        $('#dataTable').DataTable();
+
+        $("[name='dataTable_length']").css("width", "60px");
+
+        $(document).on("click", ".btn-change-room", function () {
+            var pr = $(this).parent().parent();
+            var id = pr.find("td:eq(0)").text();
+            name = pr.find("td:eq(1)");
+            $("#room-id").val(id);
+            $("#room-name").val(name.text());
+        });
+
+        $("#btnUpdateModal").click(function () {
+            var query = {
+                id: $("#room-id").val(),
+                name: $("#room-name").val()
+            };
+
+            $.ajax({
+                url: "/Room/Update",
+                method: "PUT",
+                dataType: "json",
+                data: {
+                    room: query
+                },
+                success: function (data) {
+                    if (JSON.stringify(data) == "true") {
+                        $('#exampleModal').modal('toggle');
+                        iziToast.success({
+                            title: "",
+                            message: "Cập nhật phòng thành công",
+                            position: "bottomRight",
+                        });
+
+                        name.text($("#room-name").val());
+                    }
+                }
+            });
+        });
+    });
+</script>

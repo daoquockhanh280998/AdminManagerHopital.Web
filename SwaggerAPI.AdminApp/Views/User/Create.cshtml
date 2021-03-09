@@ -1,0 +1,119 @@
+﻿@model SwaggerAPI.ViewModel.Request.NewUserRequest
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Tạo Mới Người Dùng</h1>
+
+<form asp-action="Create" asp-controller="User" class="user" style="margin-top: 40px">
+
+    <div class="row" style="margin: 0 52px 52px 52px">
+        <div class="col-6" style="padding: 0 26px 0 0" id="tab-1">
+            <div class="form-group">
+                <input asp-for="@Model.LastName" type="text" class="form-control form-control-user"
+                       id="txt-last-name" aria-describedby="emailHelp"
+                       placeholder="Họ, tên lót...">
+            </div>
+            <div class="form-group">
+                <select asp-for="@Model.Gender" class="form-control" id="txt-gender" style="font-size: .8rem;border-radius: 10rem;height: 3.2rem;padding: 0 14px;">
+                    <option value="true">Nam</option>
+                    <option value="false">Nữ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Address" type="text" class="form-control form-control-user"
+                       id="txt-address" aria-describedby="emailHelp"
+                       placeholder="Địa chỉ...">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Username" type="text" class="form-control form-control-user"
+                       id="txt-username" aria-describedby="emailHelp"
+                       placeholder="Username...">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Password" type="password" class="form-control form-control-user"
+                       id="txt-password" aria-describedby="emailHelp"
+                       placeholder="Password...">
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control form-control-user"
+                       id="txt-repeat-password" aria-describedby="emailHelp"
+                       placeholder="Nhập lại Password...">
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="form-group">
+                <input asp-for="@Model.FirstName" type="text" class="form-control form-control-user"
+                       id="txt-first-name" aria-describedby="emailHelp"
+                       placeholder="Tên...">
+            </div>
+            <div class="form-group">
+                <input class="form-control form-control-user" type="date" value="1990-01-01" asp-for="@Model.Birthday" id="example-date-input" style="width: 100%;display: inline">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Phone" type="text" class="form-control form-control-user"
+                       id="txt-phone" aria-describedby="emailHelp"
+                       placeholder="Số điện thoại...">
+            </div>
+            <div class="form-group">
+                <select asp-for="@Model.Role" class="form-control" id="txt-gender" style="font-size: .8rem;border-radius: 10rem;height: 3.2rem;padding: 0 14px;">
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                </select>
+            </div>
+            <div class="form-check form-group" style="margin: 32px 24px">
+                <input class="form-check-input" asp-for="@Model.IsActive" type="checkbox" id="defaultCheck1" checked>
+                <label class="form-check-label" for="defaultCheck1">
+                    Hoạt động
+                </label>
+            </div>
+        </div>
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <message type="@ViewBag.MessageType" content="@ViewBag.Message" statusCode="@ViewBag.Code">
+            @ViewBag.Message
+
+        </message>
+    }
+
+<div class="row">
+    <div class="col-4"></div>
+    <div class="col-4" id="div-submit" style="display: flex; justify-content: center;">
+        <button type="submit" class="btn btn-primary btn-user btn-block" style="font-size:20px;width:32%" id="btnConfirm">
+            Xác Nhận
+        </button>
+    </div>
+    <div class="col-4"></div>
+</div>
+    
+</form>
+<script>
+    $(document).ready(function () {
+        $("#btnConfirm").click(function (e) {
+            if ($("#txt-last-name").val().length == 0 ||
+                $("#txt-first-name").val().length == 0 ||
+                $("#txt-phone").val().length == 0 ||
+                $("#txt-username").val().length == 0 ||
+                $("#txt-password").val().length == 0) {
+                e.preventDefault();
+                iziToast.error({
+                    title: "",
+                    message: "Vui lòng nhập đầy đủ các trường",
+                    position: "bottomRight",
+                });
+            }
+
+            if ($("#txt-password").val() != $("#txt-repeat-password").val()) {
+                e.preventDefault();
+                iziToast.error({
+                    title: "",
+                    message: "Mật khẩu không trùng khớp",
+                    position: "bottomRight",
+                });
+            }
+        });
+    });
+</script>

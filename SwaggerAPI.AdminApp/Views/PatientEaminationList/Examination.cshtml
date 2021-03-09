@@ -1,0 +1,210 @@
+﻿@model IEnumerable<PatientEaminationListRequest>
+@{
+    var roomName = ViewBag.roomName as string;
+    var doctor = ViewBag.doctor as string;
+    int to = ViewBag.To;
+    var from = to > 0 ? 1 : 0;
+    ViewData["Title"] = "Khám bệnh " + roomName;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row" style="margin-top: 62px;">
+    <div class="col-4">
+        <div style="text-align:center; margin-bottom:92px">
+            <img src="~/img/logo.png" width="32%" />
+            <h2 style="padding-top: 26px; color: #0095DA; font-weight:500">BỆNH VIỆN ABC</h2>
+            <h5>@roomName.ToUpper()</h5>
+            <h5>BS: @doctor</h5>
+
+            <h6>SỐ THỨ TỰ TỪ <span>@(from < 9 ? ("0" + from) : from + "")</span> ĐẾN <span>@(to < 9 ? ("0" + to) : to + "")</span></h6>
+
+            <div style="margin-top: 52px;">
+                <span>SỐ HIỆN TẠI</span>
+
+                <span class="number-counter">00</span>
+
+                <button class="btn btn-info" id="btn-next">BẮT ĐẦU</button>
+                <button class="btn btn-info" id="btn-end" style="display:none">KẾT THÚC</button>
+            </div>
+        </div>
+    </div>
+    <div class="col-8">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                <thead>
+                    <tr>
+                        <th>Mã</th>
+                        <th>Bệnh Nhân</th>
+                        <th>Ngày Sinh</th>
+                        <th>STT</th>
+                        <th class="status">Trạng Thái</th>
+                        <th>Loại Hình</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @{
+                    foreach (var item in Model)
+                    {
+                        doctor = item.Doctor;
+                        var s = item.Status;
+                        <tr style="background:@(s == 5 ? "#f1f1f1" : "")" id="tr-@item.Id" data-id="@item.Id">
+                            <td>@item.Id</td>
+                            <td>@item.Name (@item.PatientId)</td>
+                            <td>@item.Birthday.ToString("dd-MM-yyyy")</td>
+                            <td class="item-order">@item.Order</td>
+                            <td id="status-@item.Id">@(s == 0 ? "đã hủy" : s == 1 ? "đã đăng ký" : s == 2 ? "đang chờ" : s == 3 ? "đang khám" : s == 4 ? "thực hiện cls" : "khám xong")</td>
+                            <td>@(item.BHYT == true ? "BHYT" : "DV")</td>
+                        </tr>
+                    }
+                    }
+                </tbody>
+
+
+            </table>
+        </div>
+    </div>
+
+    <a class="btn btn-outline-danger" style="position: absolute; right: 10px; bottom: 90px;" asp-action="RoomSelection" asp-controller="PatientEaminationList">Thoát <i class="fas fa-sign-out-alt"></i></a>
+</div>
+<style>
+    h6 span {
+        color: #e74a3b;
+    }
+
+    .number-counter {
+        font-family: 'Orbitron', sans-serif;
+        display: block;
+        color: #e74a3b;
+        font-size: 80px;
+    }
+</style>
+<script>
+    $(document).ready(function () {
+        var prvID = "";
+        var i = 0;
+
+        $('#dataTable').dataTable({
+            "bPaginate": false,
+            "bLengthChange": false,
+            "bFilter": true,
+            "bInfo": false,
+            "bAutoWidth": false
+        });
+
+        if ($(".dataTables_empty").length != 0) {
+            $("#btn-next").remove();
+            $("#btn-end").remove();
+            $("h5").remove();
+        }
+
+        $("#btn-next").click(function () {
+            counter();
+            var row = $("tr").length - 1;
+
+            if (i == 0) {
+                $(this).text("TIẾP THEO");
+                i++;
+            }
+
+            var now = parseInt($(".number-counter").text());
+
+            $(".number-counter").text(now >= 9 ? (now + 1) : "0" + (now + 1));
+
+            var id = $(".item-order:contains(" + (now + 1) + ")").parent().attr("data-id");
+
+            $("tr").removeAttr("style");
+            $("#tr-" + id).css("background", "#e74a3b").css("color", "white");
+
+            if ((now + 1) == row) {
+                setTimeout(function () {
+                    $("#btn-next").remove();
+                    $("#btn-end").removeAttr("style");
+                }, 4000);
+            }
+
+            console.log((now + 1) + ": " + id);
+
+
+            if (prvID != "") {
+                $.ajax({
+                    url: "/PatientEaminationList/ChangeStatus",
+                    method: "post",
+                    dataType: "json",
+                    data: {
+                        id: prvID,
+                        status: 4
+                    },
+                    success: function (data) {
+                        var i = data.id;
+                        var s = data.status;
+
+                        //$(this).fadeOut(function () { $(this).next().fadeIn(); });
+
+                        $("#status-" + i).text(s == 2 ? "đang chờ" : s == 3 ? "đang khám" : s == 4 ? "thực hiện cls" : "khám xong");
+                    }
+                });
+            }
+
+            prvID = id;
+
+
+            $.ajax({
+                url: "/PatientEaminationList/ChangeStatus",
+                method: "post",
+                dataType: "json",
+                data: {
+                    id: id,
+                    status: 3
+                },
+                success: function (data) {
+                    var i = data.id;
+                    var s = data.status;
+
+                    //$(this).fadeOut(function () { $(this).next().fadeIn(); });
+
+                    $("#status-" + i).text(s == 2 ? "đang chờ" : s == 3 ? "đang khám" : s == 4 ? "thực hiện cls" : "khám xong");
+                }
+            });
+        });
+
+        $("#btn-end").click(function () {
+            $("tr").removeAttr("style");
+            $(this).attr("disabled", true);
+            if (prvID != "") {
+                $.ajax({
+                    url: "/PatientEaminationList/ChangeStatus",
+                    method: "post",
+                    dataType: "json",
+                    data: {
+                        id: prvID,
+                        status: 4
+                    },
+                    success: function (data) {
+                        var i = data.id;
+                        var s = data.status;
+
+                        //$(this).fadeOut(function () { $(this).next().fadeIn(); });
+
+                        $("#status-" + i).text(s == 2 ? "đang chờ" : s == 3 ? "đang khám" : s == 4 ? "thực hiện cls" : "khám xong");
+                    }
+                });
+            }
+        });
+    });
+
+    function counter() {
+        var counter = 4;
+        $("#btn-next").attr("disabled", true);
+        var interval = setInterval(function () {
+            counter--
+            $("#btn-next").text("00:0" + counter);
+            // Display 'counter' wherever you want to display it.
+            if (counter == 0) {
+                clearInterval(interval);
+                $("#btn-next").removeAttr("disabled");
+                $("#btn-next").text("TIẾP THEO");
+            }
+        }, 1000);
+    }
+</script>

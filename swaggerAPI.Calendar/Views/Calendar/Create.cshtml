@@ -1,0 +1,124 @@
+﻿@model SwaggerAPI.ViewModel.CalendarRequest.CalendarRequest
+
+@{
+    var listDoctor = ViewBag.ListDoctor as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.DoctorRequestModel>;
+    var listRoom = ViewBag.ListRoom as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.RoomRequestModel>;
+    var listTime = ViewBag.ListTime as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.TimeRequestModel>;
+    ViewData["Title"] = "Create";
+}
+
+<h1>Tạo lịch khám</h1>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="@Model.Date" class="control-label">Ngày</label>
+                <input id="select_Date" asp-for="@Model.Date" class="form-control" />
+                <span asp-validation-for="Date" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.DoctorId" class="control-label">DoctorId</label>
+                <input id="select_DoctorId" asp-for="@Model.DoctorId" class="form-control" />
+                <span asp-validation-for="DoctorId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.RoomId" class="control-label">RoomId</label>
+                <input id="select_RoomId" asp-for="@Model.RoomId" class="form-control" />
+                <span asp-validation-for="RoomId" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="@Model.TimeId" class="control-label">TimeId</label>
+                <input id="select_TimeId" asp-for="@Model.TimeId" class="form-control" />
+                <span asp-validation-for="TimeId" class="text-danger"></span>
+            </div>
+            @*<div class="form-group">
+                    <label asp-for="@Model.DoctorId" class="control-label">Name Doctor</label>
+                    <input asp-for="@Model.DoctorId" class="form-control" />
+                    <span asp-validation-for="DoctorId" class="text-danger"></span>
+                </div>*@
+
+            @*<div class="form-group">
+                    <label asp-for="@Model.DoctorId" class="control-label">Bác sĩ</label>
+                    <select id="select_DoctorId" asp-for="@Model.DoctorId" class="custom-select">
+                        @{
+                            foreach (var doctor in listDoctor)
+                            {
+                                <option value="@doctor.id" class="form-control">@doctor.name</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.RoomId" class="control-label">Phòng</label>
+                    <select id="select_RoomId" asp-for="@Model.RoomId" class="custom-select">
+                        @{
+                            foreach (var room in listRoom)
+                            {
+                                <option value="@room.id" class="form-control">@room.name</option>
+                            }
+                        }
+
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="@Model.TimeId" class="control-label">Khung giờ</label>
+                    <select id="select_TimeId" asp-for="@Model.TimeId" class="custom-select">
+                        @{
+                            foreach (var time in listTime)
+                            {
+                                <option value="@time.id" class="form-control">@time.shiftTime</option>
+                            }
+                        }
+
+                    </select>
+                </div>*@
+            <div class="form-group">
+                <input id="btn_Send" type="button" value="Create" class="btn btn-primary" />
+            </div>
+        </form>
+
+        <span id="span_mess"></span>
+    </div>
+</div>
+<div>
+    <a asp-action="Index" asp-controller="Home">Back</a>
+</div>
+<script src="~/Scripts/jquery-3.1.1.min.js"></script>
+<script type="text/javascript" src="https://www.turnjs.com/lib/turn.min.js "></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script>
+    $(document).ready(function () {
+        $("#btn_Send").click(function () {
+            debugger;
+            var options = {};
+            options.url = "https://192.168.1.16:8080/api/Shift/add";
+            options.type = "POST";
+            var obj = {};
+            obj.DoctorId = $("#select_DoctorId").val();
+            obj.RoomId = $("#select_RoomId").val();
+            obj.Date = $("#select_Date").val();
+            obj.TimeId = $("#select_TimeId").val();
+
+            options.data = JSON.stringify(obj);
+            options.contentType = "application/json";
+            options.dataType = "html";
+
+            options.success = function (msg) {
+                alert("Hello! I am an alert box!");
+            };
+            options.error = function () {
+                alert("SAI");
+            };
+            $.ajax(options);
+
+
+
+        });
+    })
+</script>

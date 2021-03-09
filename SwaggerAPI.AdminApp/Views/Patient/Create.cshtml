@@ -1,0 +1,59 @@
+﻿@model SwaggerAPI.ViewModel.Request.RegistrationInformationRequest
+
+@{
+    ViewData["Title"] = "Đăng Ký Thông Tin Bệnh Nhân";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<h1>Đăng Ký Thông Tin Bệnh Nhân</h1>
+
+<form asp-action="Create" asp-controller="Patient" class="user" style="margin-top: 40px">
+
+    <div class="row" style="margin: 0 52px 52px 52px">
+        <div class="col-6" style="padding: 0 26px 0 0" id="tab-1">
+            <div class="form-group">
+
+                <input asp-for="@Model.Name" type="text" class="form-control form-control-user"
+                       id="txt-name" aria-describedby="emailHelp"
+                       placeholder="Họ tên...">
+            </div>
+            <div class="form-group">
+                <input class="form-control form-control-user" type="date" value="@DateTime.Now.ToString("dd-MM-yyyy")" asp-for="@Model.Birthday" id="example-date-input" style="width: 100%;display: inline">
+            </div>
+            <div class="form-group">
+                <select asp-for="@Model.Gender" class="form-control" id="txt-gender" style="font-size: .8rem;border-radius: 10rem;height: 3.2rem;padding: 0 14px;">
+                    <option value="true">Nam</option>
+                    <option value="false">Nữ</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Phone" type="text" class="form-control form-control-user"
+                       id="txt-phone" aria-describedby="emailHelp"
+                       placeholder="Điện thoại..." maxlength="10">
+            </div>
+            <div class="form-group">
+                <input asp-for="@Model.Address" type="text" class="form-control form-control-user"
+                       id="txt-address" aria-describedby="emailHelp"
+                       placeholder="Địa chỉ...">
+            </div>
+        </div>
+
+    </div>
+
+    @if (ViewBag.Message != null)
+    {
+        <message type="@ViewBag.MessageType" content="@ViewBag.Message" statusCode="@ViewBag.Code">
+            @ViewBag.Message
+
+        </message>
+    }
+
+    <div class="row">
+        <div class="col-6" id="div-submit" style="display: flex; justify-content: center;">
+            <button type="submit" class="btn btn-primary btn-user btn-block" style="font-size:20px;width:32%">
+                Xác Nhận
+            </button>
+        </div>
+    </div>
+</form>

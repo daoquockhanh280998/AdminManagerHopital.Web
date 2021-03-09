@@ -1,0 +1,130 @@
+﻿@model AdminViewModel
+
+@{
+    ViewData["Title"] = "Quản Lý Lịch Khám";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    // var listRoom = ViewBag.ListRoom as IEnumerable<SwaggerAPI.ViewModel.CalendarRequest.RoomRequestModel>;
+}
+
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Quản Lý Lịch Khám</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4" style="margin-bottom:12px">
+                <form asp-action="Index" asp-controller="PatientEaminationList" method="post" class="row">
+                    <div class="col-2">
+                        <a asp-action="Index" asp-controller="Schedule" class="btn btn-primary">Tạo Mới</a>
+                    </div>
+                    <div class="col-2">
+                        <select asp-for="@Model.Room" aria-controls="dataTable" class="custom-select custom-select-sm form-control form-control-sm" style="height:38px">
+
+                            @foreach (var room in Model.listRooms)
+                            {
+                                <option value="@room.id" class="form-control">@room.name</option>
+                            }
+
+                            <option value="">Tất cả phòng</option>
+                        </select>
+                    </div>
+                    <div class="col-2">
+                        <input type="submit" name="Lọc" value="Lọc" class="btn btn-primary" />
+                    </div>
+
+                </form>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Bệnh Nhân</th>
+                            <th>Ngày Sinh</th>
+                            <th>Phòng</th>
+                            <th>Bác Sĩ</th>
+                            <th>Thời Gian Khám</th>
+                            <th>STT</th>
+                            <th class="status">Trạng Thái</th>
+                            <th>Loại Hình</th>
+                            <th data-orderable="false"></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            foreach (var item in Model.listRequests)
+                            {
+                                var s = item.Status;
+                                <tr style="background:@(s == 5 ? "#f1f1f1" : "")">
+                                    <td>@item.Id</td>
+                                    <td>@item.Name (@item.PatientId)</td>
+                                    <td>@item.Birthday.ToString("dd-MM-yyyy")</td>
+                                    <td>@item.Room</td>
+                                    <td>@item.Doctor</td>
+                                    <td>@(item.Date.ToString("dd-MM-yyyy") + " (" + item.Time + ")")</td>
+                                    <td>@item.Order</td>
+                                    <td id="status-@item.Id">@(s == 0 ? "đã hủy" : s == 1 ? "đã đăng ký" : s == 2 ? "đang chờ" : s == 3 ? "đang khám" : s == 4 ? "thực hiện cls" : "khám xong")</td>
+                                    <td>@(item.BHYT == true ? "BHYT" : "DV")</td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-info btn-change-status" schedule-value="btn-@(item.Id + "-" + (s+1))" style="display: @(s == 5 ? "none" : "block")">&#8594;</button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        $('#dataTable').DataTable();
+
+        $(".status").trigger("click");
+        $(".status").trigger("click");
+
+        $("[name='dataTable_length']").css("width", "60px");
+        
+        $(".btn-change-status").on("click", function () {
+            var dis = $(this);
+
+            var arr = $(this).attr("schedule-value").split("-");
+
+            var id = arr[1];
+
+            var stt = arr[2];
+
+            $.ajax({
+                url: "/PatientEaminationList/ChangeStatus",
+                method: "post",
+                dataType: "json",
+                data: {
+                    id: id,
+                    status: stt
+                },
+                success: function (data) {
+                    if (data.status == 5) {
+                        dis.hide();
+                        dis.parent().parent().css("background", "#f1f1f1");
+                    }
+                    else {
+                        dis.attr("schedule-value", "btn-" + data.id + "-" + (data.status + 1));
+                    }
+
+                    var s = data.status;
+
+                    //$(this).fadeOut(function () { $(this).next().fadeIn(); });
+
+                    $("#status-" + id).text(s == 2 ? "đang chờ" : s == 3 ? "đang khám" : s == 4 ? "thực hiện cls" : "khám xong");
+                }
+            });
+        });
+    });
+</script>

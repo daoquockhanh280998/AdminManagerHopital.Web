@@ -1,0 +1,142 @@
+﻿@model IEnumerable<DoctorRequestModel>
+@{
+    ViewData["Title"] = "Quản Lý Bác Sĩ";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <h1 class="h3 mb-2 text-gray-800">Quản Lý Bác Sĩ</h1>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-body">
+            <div id="dataTable_wrapper" class="dataTables_wrapper dt-bootstrap4" style="margin-bottom:12px">
+                <div class="col-2" style="padding-left:0">
+                    <a class="btn btn-primary" asp-action="Create" asp-controller="Doctor">Tạo Mới</a>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0" role="grid" aria-describedby="dataTable_info" style="width: 100%;">
+                    <thead>
+                        <tr>
+                            <th>Mã</th>
+                            <th>Tên Bác Sĩ</th>
+                            <th>SĐT</th>
+                            <th>Email</th>
+                            <th data-orderable="false">Thao Tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        @{
+                            foreach (var item in Model)
+                            {
+                                <tr>
+                                    <td>@item.id</td>
+                                    <td>@item.name</td>
+                                    <td>@item.phone</td>
+                                    <td>@item.email</td>
+                                    <td>
+                                        <button type="button" class="btn btn-outline-warning btn-change-doctor" data-toggle="modal" data-target="#exampleModal" id="open-modal"><i class="far fa-edit"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+
+
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Chỉnh sửa bác sĩ</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label class="control-label">ID</label>
+                        <input type="text" class="form-control" disabled id="doctor-id" />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Tên Bác Sĩ</label>
+                        <input type="text" class="form-control" id="doctor-name" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">SĐT</label>
+                        <input type="text" class="form-control" id="doctor-phone" required />
+                    </div>
+                    <div class="form-group">
+                        <label class="control-label">Email</label>
+                        <input type="text" class="form-control" id="doctor-email" required />
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Đóng</button>
+                    <button type="button" class="btn btn-primary" id="btnUpdateModal">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+<script>
+    $(document).ready(function () {
+        var name, phone, email;
+        $('#dataTable').DataTable();
+
+        $("[name='dataTable_length']").css("width", "60px");
+
+        $(document).on("click", ".btn-change-doctor", function () {
+            var pr = $(this).parent().parent();
+            var id = pr.find("td:eq(0)").text();
+            name = pr.find("td:eq(1)");
+            phone = pr.find("td:eq(2)");
+            email = pr.find("td:eq(3)");
+            $("#doctor-id").val(id);
+            $("#doctor-name").val(name.text());
+            $("#doctor-phone").val(phone.text());
+            $("#doctor-email").val(email.text());
+        });
+
+        $("#btnUpdateModal").click(function () {
+            var query = {
+                id: $("#doctor-id").val(),
+                name: $("#doctor-name").val(),
+                phone: $("#doctor-phone").val(),
+                email: $("#doctor-email").val()
+            };
+
+            $.ajax({
+                url: "/Doctor/Update",
+                method: "PUT",
+                dataType: "json",
+                data: {
+                    doctor: query
+                },
+                success: function (data) {
+                    if (JSON.stringify(data) == "true") {
+                        $('#exampleModal').modal('toggle');
+                        iziToast.success({
+                            title: "",
+                            message: "Cập nhật bác sĩ thành công",
+                            position: "bottomRight",
+                        });
+
+                        name.text($("#doctor-name").val());
+                        phone.text($("#doctor-phone").val());
+                        email.text($("#doctor-email").val());
+                    }
+                }
+            });
+        });
+    });
+</script>
